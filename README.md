@@ -7,7 +7,7 @@ go-xslt
 
 # Description
 
-Go module tha performs XSL transformation via Libxslt.
+Go module that performs XSL transformation via Libxslt.
 
 # Installation
 
