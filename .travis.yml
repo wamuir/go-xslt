@@ -8,7 +8,7 @@ compiler:
   - gcc
   - clang
 
-go_import_path: github.com/wamuir/gohex
+go_import_path: github.com/wamuir/go-xslt
 
 go:
   - 1.11.x
