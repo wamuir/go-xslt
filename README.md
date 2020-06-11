@@ -7,12 +7,12 @@ go-xslt
 
 # Description
 
-Go module that performs XSL transformation via Libxslt.
+`go-xslt` is a Go module that performs basic XSL transformations via Libxslt.
 
 # Installation
 
 You'll need the development kits for libxml2 and libxslt.  Install these
-via your package manager. For instance, is using `apt` then:
+via your package manager. For instance, if using `apt` then:
 
     sudo apt install libxml2-dev libxslt-dev
 
