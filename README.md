@@ -11,8 +11,11 @@ Go module tha performs XSL transformation via Libxslt.
 
 # Installation
 
-You'll need Libxml2 and Libxslt.  Install these via your package manager.
+You'll need the development kits for libxml2 and libxslt.  Install these
+via your package manager. For instance, is using `apt` then:
 
-This package can be installed with the `go get` command:
+    sudo apt install libxml2-dev libxslt-dev
+
+This module can be installed with the `go get` command:
 
     go get github.com/wamuir/go-xslt
