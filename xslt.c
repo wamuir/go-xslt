@@ -18,7 +18,7 @@
 int transform(xmlDocPtr style_doc, xmlDocPtr xml_doc, xmlChar **doc_txt_ptr,
               int *doc_txt_len) {
 
-  xmlOutputBufferPtr buf;
+  int ok;
   xmlDocPtr result;
   xsltStylesheetPtr style;
 
@@ -30,7 +30,12 @@ int transform(xmlDocPtr style_doc, xmlDocPtr xml_doc, xmlChar **doc_txt_ptr,
     return -1;
   }
 
-  return xsltSaveResultToString(doc_txt_ptr, doc_txt_len, result, style);
+  ok = xsltSaveResultToString(doc_txt_ptr, doc_txt_len, result, style);
+
+  xmlFreeDoc(result);
+  xmlFree(style);
+
+  return ok;
 }
 
 /*
@@ -45,23 +50,18 @@ int transform(xmlDocPtr style_doc, xmlDocPtr xml_doc, xmlChar **doc_txt_ptr,
  */
 struct result xslt(const char *xsl, const char *xml) {
 
-  xmlDocPtr style, doc;
+  xmlDocPtr style_doc, xml_doc;
   struct result res;
 
-  style = xmlParseMemory(xsl, strlen(xsl));
-  doc = xmlParseMemory(xml, strlen(xml));
+  style_doc = xmlParseMemory(xsl, strlen(xsl));
+  xml_doc = xmlParseMemory(xml, strlen(xml));
 
-  if (xmlGetLastError()) {
-    xmlFreeDoc(style);
-    xmlCleanupParser();
-    res.ok = -1;
-    return res;
-  }
+  res.ok = (xmlGetLastError()) ? -1
+                               : transform(style_doc, xml_doc, &res.doc_txt_ptr,
+                                           &res.doc_txt_len);
 
-  res.ok = transform(style, doc, &res.doc_txt_ptr, &res.doc_txt_len);
-
-  xmlFreeDoc(style);
-  xmlFreeDoc(doc);
+  (xml_doc) ? xmlFreeDoc(xml_doc) : NULL;
+  (style_doc) ? xmlFreeDoc(style_doc) : NULL;
   xmlCleanupParser();
   xsltCleanupGlobals();
 
