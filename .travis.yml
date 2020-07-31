@@ -6,6 +6,7 @@ before_install:
 
 os:
   - linux
+  - osx
 
 compiler:
   - gcc
@@ -14,8 +15,11 @@ compiler:
 go_import_path: github.com/wamuir/go-xslt
 
 go:
-  - 1.11.x
-  - 1.12.x
-  - 1.13.x
   - 1.14.x
-  - master
+  - tip
+
+script:
+     - go test -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+     - bash <(curl -s https://codecov.io/bash)
