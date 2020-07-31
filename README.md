@@ -18,4 +18,4 @@ via your package manager. For instance, if using `apt` then:
 
 This module can be installed with the `go get` command:
 
-    go get github.com/wamuir/go-xslt
+    go get -u github.com/wamuir/go-xslt
