@@ -1,67 +1,83 @@
 package xslt
 
 import (
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var xml = []byte(
-	`<?xml version="1.0" encoding="utf-8" ?>
-<rodents>
-<rodent>gopher</rodent>
-</rodents>`,
+var (
+	document = mustReadFile("testdata/document.xml")
+	style1   = mustReadFile("testdata/style1.xsl")
+	style2   = mustReadFile("testdata/style2.xsl")
+	result1  = mustReadFile("testdata/result1.xml")
+	result2  = mustReadFile("testdata/result2.xhtml")
 )
 
-var xsl = []byte(
-	`<?xml version="1.0" encoding="utf-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:template match="/">
-<xsl:for-each select="rodents/rodent">
-<h1><xsl:value-of select="."/></h1>
-</xsl:for-each>
-</xsl:template>
-</xsl:stylesheet>`,
-)
+func mustReadFile(f string) []byte {
 
-var exp = []byte(
-	`<?xml version="1.0"?>
-<h1>gopher</h1>
-`,
-)
-
-func TestTransform_A(t *testing.T) {
-
-	out, err := Transform(xsl, xml)
-	assert.Nil(t, err)
-
-	assert.Equal(t, exp, out)
+	b, err := ioutil.ReadFile(f)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
 
-// Empty XML
-func TestTransform_B(t *testing.T) {
+func TestNewStylesheet(t *testing.T) {
 
-	_, err := Transform(xsl, make([]byte, 0))
-	assert.EqualError(t, ErrXSLTFailure, err.Error())
+	xs1, err := NewStylesheet(style1)
+	assert.NotNil(t, xs1)
+	assert.NoError(t, err)
+	defer xs1.Close()
+
+	xs2, err := NewStylesheet(style2)
+	assert.NotNil(t, xs2)
+	assert.NoError(t, err)
+	defer xs2.Close()
+
+	xs3, err := NewStylesheet(nil)
+	assert.Nil(t, xs3)
+	assert.Equal(t, ErrXSLParseFailure, err)
 }
 
-// Empty XSL
-func TestTransform_C(t *testing.T) {
+func TestStylesheetClose(t *testing.T) {
 
-	_, err := Transform(make([]byte, 0), xml)
-	assert.EqualError(t, ErrXSLTFailure, err.Error())
+	xs1, err := NewStylesheet(style1)
+	assert.NotNil(t, xs1)
+	assert.NoError(t, err)
+	assert.NotPanics(t, xs1.Close)
+
+	xs2 := Stylesheet{}
+	assert.NotPanics(t, xs2.Close)
 }
 
-// Invalid XML
-func TestTransform_D(t *testing.T) {
+func TestStylesheetTransform(t *testing.T) {
 
-	_, err := Transform(xsl, xml[0:len(xml)-1])
-	assert.EqualError(t, ErrXSLTFailure, err.Error())
-}
+	xs1, err := NewStylesheet(style1)
+	assert.NotNil(t, xs1)
+	assert.NoError(t, err)
+	defer xs1.Close()
 
-// Invalid XSL
-func TestTransform_E(t *testing.T) {
+	res1, err := xs1.Transform(document)
+	assert.Equal(t, result1, res1)
+	assert.NoError(t, err)
 
-	_, err := Transform(xsl[0:len(xsl)-1], xml)
-	assert.EqualError(t, ErrXSLTFailure, err.Error())
+	xs2, err := NewStylesheet(style2)
+	assert.NotNil(t, xs2)
+	assert.NoError(t, err)
+	defer xs2.Close()
+
+	res2, err := xs2.Transform(document)
+	assert.Equal(t, result2, res2)
+	assert.NoError(t, err)
+
+	xs3, err := NewStylesheet(style1)
+	assert.NotNil(t, xs3)
+	assert.NoError(t, err)
+	defer xs3.Close()
+
+	res3, err := xs3.Transform(nil)
+	assert.Nil(t, res3)
+	assert.Equal(t, ErrXSLTFailure, err)
 }

@@ -8,7 +8,7 @@ go-xslt
 
 # Description
 
-`go-xslt` is a Go module that performs basic XSL transformations via Libxslt.
+`go-xslt` is a Go module that performs basic XSLT 1.0 transformations via Libxslt.
 
 # Installation
 
@@ -20,3 +20,24 @@ via your package manager. For instance, if using `apt` then:
 This module can be installed with the `go get` command:
 
     go get -u github.com/wamuir/go-xslt
+
+
+# Usage
+
+```go
+
+  // style is an XSLT 1.0 stylesheet, as []byte.
+  xs, err := xslt.NewStylesheet(style)
+  if err != nil {
+      panic(err)
+  }
+  defer s.Close()
+
+  // doc is an XML document to be transformed and res is the result of
+  // the XSL transformation, both as []byte. 
+  res, err := xs.Transform(doc)
+  if err != nil {
+      panic(err)
+  }
+
+```

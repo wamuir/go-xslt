@@ -1,17 +1,15 @@
-#ifndef _XSLT_H
-#define _XSLT_H
+#ifndef GOXSLT_H
+#define GOXSLT_H
 
 #include <libxslt/xsltutils.h>
 
-struct result {
-  int ok;
-  int doc_txt_len;
-  xmlChar *doc_txt_ptr;
-};
+int apply_style(xsltStylesheetPtr style, const char *xml, char **xml_txt,
+                size_t *xml_txt_len);
 
-int transform(xmlDocPtr style_doc, xmlDocPtr xml_doc, xmlChar **doc_txt_ptr,
-              int *doc_txt_len);
+void free_style(xsltStylesheetPtr *style);
 
-struct result xslt(const char *xsl, const char *xml);
+int make_style(const char *xsl, xsltStylesheetPtr *style);
+
+int xslt(const char *xsl, const char *xml, char **xml_txt, size_t *xml_txt_len);
 
 #endif
