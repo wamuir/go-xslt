@@ -31,7 +31,7 @@ This module can be installed with the `go get` command:
   if err != nil {
       panic(err)
   }
-  defer s.Close()
+  defer xs.Close()
 
   // doc is an XML document to be transformed and res is the result of
   // the XSL transformation, both as []byte. 
