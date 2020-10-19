@@ -43,17 +43,20 @@ func (xs *Stylesheet) Transform(xml []byte) ([]byte, error) {
 		ret  C.int
 		size C.size_t
 	)
-	defer C.free(unsafe.Pointer(cout))
 
 	cxml = C.CString(string(xml))
 	defer C.free(unsafe.Pointer(cxml))
 
 	ret = C.apply_style(xs.ptr, cxml, &cout, &size)
 	if ret != 0 {
+		defer C.free(unsafe.Pointer(cout))
 		return nil, ErrXSLTFailure
 	}
 
-	return C.GoBytes(unsafe.Pointer(cout), C.int(size)), nil
+	ptr := unsafe.Pointer(cout)
+	defer C.free(ptr)
+
+	return C.GoBytes(ptr, C.int(size)), nil
 }
 
 // NewStylesheet creates and returns a new stylesheet along with any
