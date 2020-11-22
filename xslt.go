@@ -1,9 +1,13 @@
 package xslt
 
-// #cgo LDFLAGS: -L/usr/lib -L/usr/local/lib -lxml2 -lxslt -lz -llzma -lm
-// #cgo CFLAGS: -I/usr/include -I/usr/local/include -I/usr/include/libxml2 -I/usr/local/include/libxml2
-// #include <string.h>
-// #include "xslt.h"
+/*
+#cgo LDFLAGS: -lxml2 -lxslt -lz -llzma -lm
+#cgo CFLAGS: -I/usr/include -I/usr/include/libxml2
+#cgo freebsd,openbsd LDFLAGS: -L/usr/local/lib -lxml2 -lxslt -lz -llzma -lm
+#cgo freebsd,openbsd CFLAGS: -I/usr/local/include -I/usr/local/include/libxml2
+#include <string.h>
+#include "xslt.h"
+*/
 import "C"
 
 import (
