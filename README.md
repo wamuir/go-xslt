@@ -12,10 +12,9 @@ go-xslt
 
 # Installation
 
-You'll need the development kits for libxml2 and libxslt.  Install these
-via your package manager. For instance, if using `apt` then:
+You'll need the development libraries for libxml2 and libxslt, along with those for liblzma and zlib.  Install these via your package manager. For instance, if using `apt` then:
 
-    sudo apt install libxml2-dev libxslt-dev
+    sudo apt install libxml2-dev libxslt1-dev liblzma-dev zlib1g-dev
 
 This module can be installed with the `go get` command:
 
