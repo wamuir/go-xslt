@@ -7,7 +7,7 @@ import (
 )
 
 func Example() {
-	// doc is the document to be transformed
+	// doc is the xml document to be transformed.
 	var doc = []byte(
 		`<?xml version="1.0" ?>
 		 <persons>
@@ -22,7 +22,7 @@ func Example() {
 		 </persons>`,
 	)
 
-	// style is the XSL stylesheet to be used for transformation
+	// style is the xsl stylesheet to be used for transformation.
 	var style = []byte(
 		`<?xml version="1.0" encoding="UTF-8"?>
 		 <xsl:stylesheet
@@ -33,40 +33,42 @@ func Example() {
 		   <xsl:template match="/persons">
 		     <html>
 		       <head>
-			 <title>Testing XML Example</title>
+		         <title>Testing XML Example</title>
 		       </head>
 		       <body>
-			 <h1>Persons</h1>
-			 <ul>
-			   <xsl:apply-templates select="person">
-			     <xsl:sort select="family-name" />
-			   </xsl:apply-templates>
-			 </ul>
+		         <h1>Persons</h1>
+		         <ul>
+		           <xsl:apply-templates select="person">
+		             <xsl:sort select="family-name" />
+		           </xsl:apply-templates>
+		         </ul>
 		       </body>
 		     </html>
 		   </xsl:template>
 		   <xsl:template match="person">
 		     <li>
-		       <xsl:value-of select="family-name"/><xsl:text>, </xsl:text><xsl:value-of select="name"/>
+		       <xsl:value-of select="family-name"/>
+		       <xsl:text>, </xsl:text>
+		       <xsl:value-of select="name"/>
 		     </li>
 		   </xsl:template>
 		 </xsl:stylesheet>`,
 	)
 
-	// create a new stylesheet from style
+	// Create Stylesheet xs from xsl stylesheet style.
 	xs, err := xslt.NewStylesheet(style)
 	if err != nil {
 		panic(err)
 	}
 	defer xs.Close()
 
-	// transform the document using the style
+	// Transform xml document doc using Stylesheet xs.
 	res, err := xs.Transform(doc)
 	if err != nil {
 		panic(err)
 	}
 
-	// print the result of the transformation
+	// Print the result of the transformation.
 	fmt.Println(string(res))
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>

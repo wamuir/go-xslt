@@ -15,19 +15,19 @@ import (
 	"unsafe"
 )
 
-// Transformation errors
+// Package errors.
 var (
-	ErrXSLTFailure     = errors.New("XSL transformation failed")
-	ErrXSLParseFailure = errors.New("Failed to parse XSL")
+	ErrXSLTFailure     = errors.New("xsl transformation failed")
+	ErrXSLParseFailure = errors.New("failed to parse xsl")
 )
 
-// Stylesheet represents an XSL
+// Stylesheet represents an xsl stylesheet.
 type Stylesheet struct {
 	ptr C.xsltStylesheetPtr
 }
 
-// Close frees memory associated with a stylesheet.  Additional calls
-// to Close will be ignored.
+// Close frees memory associated with a stylesheet.  Additional calls to Close
+// will be ignored.
 func (xs *Stylesheet) Close() {
 	if xs.ptr != nil {
 		C.free_style(&xs.ptr)
@@ -35,12 +35,10 @@ func (xs *Stylesheet) Close() {
 	}
 }
 
-// Transform applies the receiver to the XML and returns the result of
-// an XSL transformation and any errors.  The resulting document may
-// be nil (a zero-length and zero-capacity byte slice) in the case of
-// an error.
+// Transform applies receiver stylesheet xs to xml and returns the result of an
+// xsl transformation and any error.  The resulting document may be nil (a
+// zero-length and zero-capacity byte slice) in the case of an error.
 func (xs *Stylesheet) Transform(xml []byte) ([]byte, error) {
-
 	var (
 		cxml *C.char
 		cout *C.char
@@ -63,12 +61,10 @@ func (xs *Stylesheet) Transform(xml []byte) ([]byte, error) {
 	return C.GoBytes(ptr, C.int(size)), nil
 }
 
-// NewStylesheet creates and returns a new stylesheet along with any
-// errors.  The resulting stylesheet ay be nil if an error is
-// encountered during parsing.  This implementation relies on Libxslt,
-// which supports XSLT 1.0.
+// NewStylesheet creates and returns new stylesheet xs along with any error.
+// The resulting stylesheet may be nil if an error is encountered during
+// parsing.  This implementation relies on Libxslt, which supports XSLT 1.0.
 func NewStylesheet(xsl []byte) (*Stylesheet, error) {
-
 	var (
 		cxsl *C.char
 		cssp C.xsltStylesheetPtr
