@@ -138,3 +138,16 @@ func TestStylesheetTransform(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkStylesheetTransform(b *testing.B) {
+	xml, _ := ioutil.ReadFile("testdata/document.xml")
+	xsl, _ := ioutil.ReadFile("testdata/style1.xsl")
+	xs, _ := xslt.NewStylesheet(xsl)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := xs.Transform(xml); err != nil {
+			b.Errorf("got %v, want %v", err, nil)
+		}
+	}
+}
