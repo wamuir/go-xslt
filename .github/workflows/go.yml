@@ -1,31 +1,43 @@
+---
 name: Go
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1
-        
-    - name: Install deps
-      run: sudo apt-get -y install --no-install-recommends libxml2-dev libxslt1-dev liblzma-dev zlib1g-dev 
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1
 
-    - name: Build
-      run: go build -v ./...
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get -y install --no-install-recommends \
+          libxml2-dev libxslt1-dev liblzma-dev zlib1g-dev
 
-    - name: Test
-      run: go test -v -coverprofile=coverage.txt -covermode=atomic -race ./...
+      - name: Install macOS deps
+        if: runner.os == 'macOS'
+        run: brew install libxml2 libxslt
 
-    - name: Coverage
-      run: bash <(curl -s https://codecov.io/bash) 
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test
+        run: go test -v -coverprofile=coverage.txt -covermode=atomic -race ./...
+
+      - name: Coverage
+        if: runner.os == 'Linux'
+        run: bash <(curl -s https://codecov.io/bash)
