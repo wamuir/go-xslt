@@ -12,4 +12,6 @@ int make_style(const char *xsl, xsltStylesheetPtr *style);
 
 int xslt(const char *xsl, const char *xml, char **xml_txt, size_t *xml_txt_len);
 
+void init_exslt();
+
 #endif
