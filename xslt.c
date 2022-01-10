@@ -136,3 +136,12 @@ int xslt(const char *xsl, const char *xml, char **xml_txt,
 
   return ok;
 }
+
+/*
+ * Function: init_exslt
+ * ----------------------------
+ *  Calls exsltRegisterAll() to enable exsl namespace at templates
+ */
+void init_exslt() {
+  exsltRegisterAll();
+}
