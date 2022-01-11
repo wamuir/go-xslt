@@ -82,7 +82,6 @@ func NewStylesheet(xsl []byte) (*Stylesheet, error) {
 	return &Stylesheet{ptr: cssp}, nil
 }
 
-// InitExslt enables exsl namespace. Call this once at program start.
-func InitExslt() {
+func init() {
 	C.init_exslt()
 }
