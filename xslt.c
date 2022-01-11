@@ -1,6 +1,7 @@
 #include "xslt.h"
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
+#include <libexslt/exslt.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -135,4 +136,13 @@ int xslt(const char *xsl, const char *xml, char **xml_txt,
   free_style(&style);
 
   return ok;
+}
+
+/*
+ * Function: init_exslt
+ * ----------------------------
+ *  Calls exsltRegisterAll() to enable exsl namespace at templates
+ */
+void init_exslt() {
+  exsltRegisterAll();
 }

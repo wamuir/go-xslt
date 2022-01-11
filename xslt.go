@@ -1,7 +1,7 @@
 package xslt
 
 /*
-#cgo LDFLAGS: -lxml2 -lxslt -lz -llzma -lm
+#cgo LDFLAGS: -lxml2 -lxslt -lexslt -lz -llzma -lm
 #cgo CFLAGS: -I/usr/include -I/usr/include/libxml2
 #cgo freebsd LDFLAGS: -L/usr/local/lib
 #cgo freebsd CFLAGS: -I/usr/local/include -I/usr/local/include/libxml2
@@ -80,4 +80,8 @@ func NewStylesheet(xsl []byte) (*Stylesheet, error) {
 	}
 
 	return &Stylesheet{ptr: cssp}, nil
+}
+
+func init() {
+	C.init_exslt()
 }
