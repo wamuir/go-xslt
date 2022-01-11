@@ -144,5 +144,9 @@ int xslt(const char *xsl, const char *xml, char **xml_txt,
  *  Calls exsltRegisterAll() to enable exsl namespace at templates
  */
 void init_exslt() {
+  LIBXML_TEST_VERSION
+
+  xmlInitParser();
+  xsltInit();
   exsltRegisterAll();
 }
