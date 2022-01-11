@@ -1,6 +1,7 @@
 #include "xslt.h"
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
+#include <libexslt/exslt.h>
 #include <stdint.h>
 #include <string.h>
 
