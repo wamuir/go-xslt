@@ -40,9 +40,3 @@ This module can be installed with the `go get` command:
   }
 
 ```
-
-# Exslt
-
-To enable usage of exslt extension, namespace xmlns:exsl="http://exslt.org/common" and it's functions like exsl:node-set(), You'll need to init it once at programm start
-
-    xslt.InitExslt()
