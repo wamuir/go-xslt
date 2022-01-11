@@ -139,6 +139,66 @@ func TestStylesheetTransform(t *testing.T) {
 	}
 }
 
+func TestStylesheetTransformExslt(t *testing.T) {
+	tests := []struct {
+		name string
+		xml  []byte
+		xsl  []byte
+		res  []byte
+	}{
+		{
+			"math/min",
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?>
+
+<values>
+   <value>7</value>
+   <value>11</value>
+   <value>8</value>
+   <value>4</value>
+</values>
+`),
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet
+   version="1.0"
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+   xmlns:math="http://exslt.org/math"
+   extension-element-prefixes="math">
+   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
+   <xsl:template match="values">
+     <result>
+       <xsl:text>Minimum: </xsl:text>
+       <xsl:value-of select="math:min(value)" />
+     </result>
+  </xsl:template>
+</xsl:stylesheet>
+`),
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?>
+<result>Minimum: 4</result>
+`),
+		},
+	}
+
+	for _, c := range tests {
+		t.Run(c.name, func(t *testing.T) {
+			xs, err := xslt.NewStylesheet(c.xsl)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			got, err := xs.Transform(c.xml)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			want := c.res
+			if !bytes.Equal(got, want) {
+				t.Errorf("got: %s, want: %s", got, want)
+			}
+		})
+	}
+
+}
+
 func BenchmarkStylesheetTransform(b *testing.B) {
 	xml, _ := ioutil.ReadFile("testdata/document.xml")
 	xsl, _ := ioutil.ReadFile("testdata/style1.xsl")
