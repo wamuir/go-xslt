@@ -199,6 +199,89 @@ func TestStylesheetTransformExslt(t *testing.T) {
 
 }
 
+func TestStylesheetTransformParameter(t *testing.T) {
+	xml := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <entry name="a">one</entry>
+</data>
+`)
+	xsl := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+  <xsl:output method="text" encoding="UTF-8"/>
+  <xsl:param name="a"/>
+  <xsl:template match="/data">
+    <xsl:value-of select="$a"/>
+  </xsl:template>
+</xsl:stylesheet>
+`)
+
+	tests := []struct {
+		name string
+		xml  []byte
+		xsl  []byte
+		par  xslt.Parameter
+		res  []byte
+	}{
+		{"xpath", xml, xsl, xslt.XPathParameter{"a", "data/entry[@name='a']/text()"}, []byte(`one`)},
+		{"str", xml, xsl, xslt.StringParameter{"a", "two"}, []byte(`two`)},
+		{"str/dq", xml, xsl, xslt.StringParameter{"a", "th'ree"}, []byte(`th'ree`)},
+		{"str/sq", xml, xsl, xslt.StringParameter{"a", "fo\"ur"}, []byte(`fo"ur`)},
+	}
+
+	for _, c := range tests {
+		t.Run(c.name, func(t *testing.T) {
+			xs, err := xslt.NewStylesheet(c.xsl)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			got, err := xs.Transform(c.xml, c.par)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			want := c.res
+			if !bytes.Equal(got, want) {
+				t.Errorf("got: %s, want: %s", got, want)
+			}
+		})
+	}
+
+	is := string([]byte{0xff, 0xfe, 0xfd}) // an invalid UTF-8 string
+
+	errorTests := []struct {
+		name string
+		xml  []byte
+		xsl  []byte
+		par  xslt.Parameter
+		err  error
+	}{
+		{"xpath/in", xml, xsl, xslt.XPathParameter{is, "x"}, xslt.ErrUTF8Validation},
+		{"xpath/in", xml, xsl, xslt.XPathParameter{"a", is}, xslt.ErrUTF8Validation},
+		{"str/in", xml, xsl, xslt.StringParameter{is, "x"}, xslt.ErrUTF8Validation},
+		{"str/iv", xml, xsl, xslt.StringParameter{"a", is}, xslt.ErrUTF8Validation},
+		{"str/mq", xml, xsl, xslt.StringParameter{"a", `x'"z`}, xslt.ErrMixedQuotes},
+	}
+
+	for _, c := range errorTests {
+		t.Run(c.name, func(t *testing.T) {
+			xs, err := xslt.NewStylesheet(c.xsl)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			got, err := xs.Transform(c.xml, c.par)
+			if got != nil {
+				t.Errorf("got: %s, want: %v", got, nil)
+			}
+			if err != c.err {
+				t.Errorf("got: %v, want: %v", err, c.err)
+			}
+		})
+	}
+
+}
+
 func BenchmarkStylesheetTransform(b *testing.B) {
 	xml, _ := ioutil.ReadFile("testdata/document.xml")
 	xsl, _ := ioutil.ReadFile("testdata/style1.xsl")
@@ -207,6 +290,35 @@ func BenchmarkStylesheetTransform(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if _, err := xs.Transform(xml); err != nil {
+			b.Errorf("got %v, want %v", err, nil)
+		}
+	}
+}
+
+func BenchmarkStylesheetTransformStringParam(b *testing.B) {
+	xml, _ := ioutil.ReadFile("testdata/document.xml")
+	xsl, _ := ioutil.ReadFile("testdata/style1.xsl")
+	xs, _ := xslt.NewStylesheet(xsl)
+
+	p := []xslt.Parameter{
+		xslt.StringParameter{"a", "b"},
+		xslt.StringParameter{"c", "d"},
+		xslt.StringParameter{"e", "f"},
+		xslt.StringParameter{"g", "h"},
+		xslt.StringParameter{"i", "j"},
+		xslt.StringParameter{"k", "l"},
+		xslt.StringParameter{"m", "n"},
+		xslt.StringParameter{"o", "p"},
+		xslt.StringParameter{"q", "r"},
+		xslt.StringParameter{"s", "t"},
+		xslt.StringParameter{"u", "v"},
+		xslt.StringParameter{"w", "x"},
+		xslt.StringParameter{"y", "z"},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := xs.Transform(xml, p...); err != nil {
 			b.Errorf("got %v, want %v", err, nil)
 		}
 	}
