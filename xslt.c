@@ -1,9 +1,13 @@
-#include "xslt.h"
-#include <libxslt/transform.h>
-#include <libxslt/xsltutils.h>
-#include <libexslt/exslt.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <libexslt/exslt.h>
+#include <libxml/parser.h>
+#include <libxml/xmlversion.h>
+#include <libxslt/transform.h>
+#include <libxslt/xsltutils.h>
+
+#include "xslt.h"
 
 /*
  * Function: apply_style
@@ -12,13 +16,14 @@
  *
  *   style:        parsed XSL stylesheet
  *   xml:          XML to be transformed
+ *   params:       parameters to be passed
  *   xml_txt:      output from the transform
  *   xml_txt_len:  length in bytes of output
  *
  *  returns 0 if the transform is successful or -1 in case of error
  */
-int apply_style(xsltStylesheetPtr style, const char *xml, char **xml_txt,
-                size_t *xml_txt_len) {
+int apply_style(xsltStylesheetPtr style, const char *xml, const char **params,
+                char **xml_txt, size_t *xml_txt_len) {
 
   int ok;
   size_t len;
@@ -39,7 +44,7 @@ int apply_style(xsltStylesheetPtr style, const char *xml, char **xml_txt,
   }
 
   // obtain the result from transforming xml_doc using the style
-  result = xsltApplyStylesheet(style, xml_doc, NULL);
+  result = xsltApplyStylesheet(style, xml_doc, params);
   if (result == NULL) {
     xmlFreeDoc(xml_doc);
     return -1;
@@ -115,12 +120,13 @@ int make_style(const char *xsl, xsltStylesheetPtr *style) {
  *
  *   xsl:          the stylesheet to be used
  *   xml:          the document to transform
+ *   params:       parameters to be passed
  *   xml_txt:      output from the transform
  *   xml_txt_len:  length in bytes of output
  *
  *  returns 0 if the transform is successful or -1 in case of error
  */
-int xslt(const char *xsl, const char *xml, char **xml_txt,
+int xslt(const char *xsl, const char *xml, const char **params, char **xml_txt,
          size_t *xml_txt_len) {
 
   int ok;
@@ -131,7 +137,7 @@ int xslt(const char *xsl, const char *xml, char **xml_txt,
     return -1;
   }
 
-  ok = apply_style(style, xml, xml_txt, xml_txt_len);
+  ok = apply_style(style, xml, params, xml_txt, xml_txt_len);
 
   free_style(&style);
 
@@ -149,4 +155,22 @@ void init_exslt() {
   xmlInitParser();
   xsltInit();
   exsltRegisterAll();
+}
+
+const char **make_param_array(int num_tuples) {
+  const char **a = calloc(sizeof(char *), 2 * num_tuples + 1);
+  a[2 * num_tuples] = NULL;
+  return a;
+}
+
+void set_param(char **a, char *n, char *v, int t) {
+  a[2 * t] = n;
+  a[2 * t + 1] = v;
+}
+
+void free_param_array(char **a, int num_tuples) {
+  int i;
+  for (i = 0; i < 2 * num_tuples; i++)
+    free(a[i]);
+  free(a);
 }
