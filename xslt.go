@@ -84,7 +84,8 @@ func (p StringParameter) value() (*C.char, error) {
 // where name is a QName or a UTF-8 string of the form {URI}NCName and value is
 // a UTF-8 XPath expression. A quoted value (single or double) will be treated
 // as a string rather than as an XPath expression, however the use of
-// StringParamete is preferable when passing string parameters to a stylesheet.
+// StringParameter is preferable when passing string parameters to a
+// stylesheet.
 type XPathParameter struct {
 	Name  string
 	Value string
