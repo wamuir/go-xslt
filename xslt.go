@@ -5,6 +5,7 @@ package xslt
 #cgo CFLAGS: -I/usr/include -I/usr/include/libxml2
 #cgo freebsd LDFLAGS: -L/usr/local/lib
 #cgo freebsd CFLAGS: -I/usr/local/include -I/usr/local/include/libxml2
+#include <stdlib.h>
 #include <string.h>
 #include "xslt.h"
 */
