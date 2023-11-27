@@ -38,9 +38,17 @@ int apply_style(xsltStylesheetPtr style, const char *xml, const char **params,
 
   // parse the provided xml document
   xml_doc = xmlParseMemory(xml, (int)strlen(xml));
-  if (xml_doc == NULL || xmlGetLastError()) {
+  if (xml_doc == NULL) {
     xmlResetLastError();
     return -1;
+  }
+
+  xmlErrorPtr error = xmlGetLastError();
+  if (error) {
+    xmlResetLastError();
+    if (error->level > XML_ERR_WARNING) {
+      return -1;
+    }
   }
 
   // obtain the result from transforming xml_doc using the style
