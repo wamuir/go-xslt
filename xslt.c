@@ -44,7 +44,7 @@ int apply_style(xsltStylesheetPtr style, const char *xml, const char **params,
     return -1;
   }
 
-  xmlErrorPtr error = xmlGetLastError();
+  const xmlError *error = xmlGetLastError();
   if (error) {
     xmlResetLastError();
     if (error->level > XML_ERR_WARNING) {
